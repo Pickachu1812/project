@@ -1,0 +1,42 @@
+version: '3.3'
+
+services:
+  postgres:
+    image: postgres:13-alpine
+    restart: always
+    expose:
+      - 5432
+    volumes:
+      - ./postgres/database/:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_PASSWORD: "postgrespassword"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    logging:
+      driver: syslog
+      options:
+        syslog-format: "rfc3164"
+        tag: "postgres"
+  nginx:
+    build: ./frontend
+    ports:
+      - 80:80
+    depends_on:
+      - django
+    logging:
+      driver: syslog
+      options:
+        syslog-format: "rfc3164"
+        tag: "nginx"
+  django:
+    build: ./backend
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    expose:
+      - 8000
+    depends_on:
+      - postgres
+    logging:
+      driver: syslog
+      options:
+        syslog-format: "rfc3164"
+        tag: "django"
+
