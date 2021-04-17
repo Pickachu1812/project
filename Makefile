@@ -1,5 +1,6 @@
 deploy:
-	mkdir ./postgres/database
+	mkdir postgres
+	mkdir postgres/database
 	docker-compose -f docker-compose.yml up -d --build
 	ping 8.8.8.8 -c 10
 	cat ./database.dump | docker-compose exec -T postgres psql -U postgres
